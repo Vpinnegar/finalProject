@@ -51,10 +51,10 @@ coesa76_geom = coesa76(np.linspace(0,10000,2000))
 def VEGABetaMol(Tz, Pz, wave):
     betamol = np.zeros(len(Pz))
     for i in range(len(Pz)):
-        betamol[i] = (2.9838*10**(-32))*(Pz[i]/Tz[i])*(1/(wave**(4.0117)))
+        betamol[i] = (2.938*10**(-32))*(Pz[i]/Tz[i])*(1/(wave**(4.0117)))
     return betamol
 BetaMolVEGAICAO = VEGABetaMol(allheights.temperature, allheights.pressure, float(5.32*10**(-7))) ##Ambiance
-BetaMolVEGACOESA = VEGABetaMol(coesa76_geom.T, coesa76_geom.P, float(5.32*10**(-7)))
+BetaMolVEGACOESA = VEGABetaMol(coesa76(np.linspace(0,10,2000)).T, coesa76(np.linspace(0,10,2000)).P, float(5.32*10**(-7)))
 
 def Lidar(Power, binlength, Area, Eff, Range, Beta, Transmission):
     P = []
@@ -69,15 +69,18 @@ def Lidar(Power, binlength, Area, Eff, Range, Beta, Transmission):
         P.append(PH)
     return P
 
-Try = Lidar(2, 5, 0.4, 0.9,10000 , Beta, 0.98)
+Try = Lidar(2, 5, 0.4, 0.9,10000 , BetaMolVEGACOESA, 0.98)
 heights = np.linspace(0,10000,2000)
 plt.plot(Try, heights)
 # plt.xlim(0,0.00000000001)
 plt.figure()
-plt.plot(Beta, heights)
+plt.plot(BetaMolVEGACOESA, heights)
 
 
         
+
+
+
 
 
 
