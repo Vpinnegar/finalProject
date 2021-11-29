@@ -1,6 +1,5 @@
 import numpy as np
 import seaborn as sns
-from astropy.table import Table
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -8,7 +7,6 @@ from scipy import interpolate
 
 height = np.linspace(0, 10000, num=333)
 
-# 1440 per day
 time = np.linspace(0, 24, 1440)
 
 atmos = np.zeros((25, 333))
@@ -34,8 +32,6 @@ for i in range(len(atmos)):
 # 	atmos[i] += scale * 1/np.sqrt(2*np.pi*std**2) * np.exp(-(height-mean)**2/(2*std**2))
 
 f = interpolate.interp2d(range(0, 25, 1), height, np.transpose(atmos), kind='linear')
-
-t = Table()
 
 atmos_full = f(time, height)
 
