@@ -69,6 +69,12 @@ def Lidar(Power, binlength, Area, Eff, Range, Beta, Transmission):
         P.append(PH)
     return P
 
+def Radar(Power, binlength, Gain, theta, phi, dielectric, loss, reflectivity,\
+ wavelength, Range, m):
+    Z_e = Beta * (m**2-1)/(m**2+2) * 4 * wavelength**4 / np.pi**4
+    P = np.pi**3 * Power * Gain**2 * theta*phi * binlength * K**2 * l * Z_e
+    return P
+
 Try = Lidar(2, 5, 0.4, 0.9,10000 , BetaMolVEGACOESA, 0.98)
 heights = np.linspace(0,10000,2000)
 plt.plot(Try, heights)
