@@ -151,15 +151,15 @@ atmosphere = ttk.Radiobutton(mainframe, text='Atmosphere Parameters', variable=s
 t = np.arange(0.0,3.0,0.01)
 s = np.random.normal(0,1,np.size(t))
 
-fig1 = plt.figure(1)
+fig1 = plt.figure(1, figsize=(6.2, 4.8))
 plt.plot(t, s * np.sin(np.pi*t))
 plt.title('Test 1')
 
-fig2 = plt.figure(2)
+fig2 = plt.figure(2, figsize=(6.2, 4.8))
 plt.plot(t, s * np.cos(np.pi*t))
 plt.title('Test 2')
 
-fig3 = plt.figure(3)
+fig3 = plt.figure(3, figsize=(6.2, 4.8))
 plt.plot(t, s * np.sin(np.pi*t) * np.cos(np.pi*t))
 plt.title('Test 3')
 
@@ -170,19 +170,19 @@ def plotFigs():
 
 	s = np.random.normal(0,1,np.size(t))
 
-	plt.figure(1)
+	plt.figure(1, figsize=(6.2, 4.8))
 	plt.clf()
 	plt.plot(t, s * np.sin(np.pi*t))
 	plt.title('Test 1')
 	fig1.canvas.draw()
 
-	plt.figure(2)
+	plt.figure(2, figsize=(6.2, 4.8))
 	plt.clf()
 	plt.plot(t, s * np.cos(np.pi*t))
 	plt.title('Test 2')
 	fig2.canvas.draw()
 
-	plt.figure(3)
+	plt.figure(3, figsize=(6.2, 4.8))
 	plt.clf()
 	plt.plot(t, s * np.sin(np.pi*t) * np.cos(np.pi*t))
 	plt.title('Test 3')
