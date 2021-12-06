@@ -25,6 +25,7 @@ from scipy.signal import savgol_filter
 from ambiance import Atmosphere
 from pyatmos import coesa76
 import miepython
+from matplotlib.colors import LogNorm
 from testAtmosphere import RandomBackscatter
 import seaborn as sns
 """ Constants """
@@ -50,58 +51,85 @@ densitysea = sealevel.density
 allheights = Atmosphere(np.linspace(0,10000,2000))
 def scatlimit(r,wavelength):
     return 2*np.pi*r/wavelength
-def waterDroprefrac(lambda0):
-    m2 = 1.0
-    m2 += 5.666959820E-1 / (1.0 - 5.084151894E-3 / lambda0**2)
-    m2 += 1.731900098E-1 / (1.0 - 1.818488474E-2 / lambda0**2)
-    m2 += 2.095951857E-2 / (1.0 - 2.625439472E-2 / lambda0**2)
-    m2 += 1.125228406E-1 / (1.0 - 1.073842352E1 / lambda0**2)
-    m = np.sqrt(m2)
-    return m
-
-## Pyatmos COesa standard atmosphere
-coesa76_geom = coesa76(np.linspace(0,10000,2000))
-def VEGABetaMol(wave, angle, bins, binsize, maxheight, n, r):
+def VEGABetaMolM(wave, angle, bins, binsize, maxheight, n, r):
     TzPz = coesa76(np.linspace(0,maxheight,bins)).P/coesa76(np.linspace(0,maxheight,bins)).T
     betamol = np.zeros(len(TzPz))
     # V = np.zeros(len(TzPz))
     K = 1.38e-23
+    print((((n**2 + 2)/(n**2 - 1))**2))
     for i in range(len(TzPz)):
+        
         # print(TzPz[i])
         # V[i] = (np.pi/3)*((((i+1)*binsize)**3)* np.tan(angle) - (((i)*binsize)**3)* np.tan(angle))
-        betamol[i] = (TzPz[i]/K) *(16*(np.pi**4))*(((n**2 + 2)/(n**2 - 1))**2)* r**6 * wave**(-4)
+        betamol[i] = (TzPz[i]**-1 * K) *(16*(np.pi**4))*(((n**2 + 2)/(n**2 - 1))**2)* r**6 * wave**(-4)
+    return betamol
+## Pyatmos COesa standard atmosphere
+coesa76_geom = coesa76(np.linspace(0,10000,2000))
+def VEGABetaMol(time,height,inpu, wave, angle, bins, binsize, maxheight, n, r):
+    # TzPz = coesa76(np.linspace(0,maxheight,bins)).P/coesa76(np.linspace(0,maxheight,bins)).T
+    betamol = np.zeros((height, time))
+    # V = np.zeros(len(TzPz))
+    K = 1.38e-23
+    for i in range(time):
+        for j in range(height):
+        # print(TzPz[i])
+        # V[i] = (np.pi/3)*((((i+1)*binsize)**3)* np.tan(angle) - (((i)*binsize)**3)* np.tan(angle))
+            betamol[j,i] = (inpu[j,i] /K) *5.31e-22* wave**(-4)
     return betamol
 # BetaMolVEGAICAO = VEGABetaMol(allheights.pressure/allheights.temperature, float(5.32*10**(-7))) ##Ambiance
 # BetaMolVEGACOESA = VEGABetaMol(coesa76(np.linspace(0,10,2000)).P/coesa76(np.linspace(0,10,2000)).T, float(5.32*10**(-7)))
 
 # BetaMolVEGAICAORadar = VEGABetaMol(allheights.pressure/allheights.temperature, float(0.0086)) ##Ambiance
 # BetaMolVEGACOESARadar = VEGABetaMol(coesa76(np.linspace(0,10,2000)).P/coesa76(np.linspace(0,10,2000)).T, float(0.0086))
-def MieBackscatter(time,height, inpu, particler, m, lambd, binsize, angle):
+def MieBackscatter(time,height, inpu, particler, m, lambd, binsize, angle, typ):
     back = np.zeros((height, time))
     # V = np.zeros(height)
-    x = 2*np.pi*particler/lambd
+    
     K = 1.38e-23
-    Qext, qsca, Qback, g = miepython.mie(m,x)
-    print(Qback)
-    for sec in range(time):
-        for al in range(height):
-            # print(sec,al)
-            # V[al] = (np.pi/3)*((((al+1)*binsize)**3)* np.tan(angle) - (((al)*binsize)**3)* np.tan(angle))
-            back[al,sec] = (inpu[al,sec]/K)*np.pi*(particler**2)*Qback
+    
+    # print(Qback)
+    if typ == 'cloud':
+        
+        for sec in range(time):
+            print(sec)
+            for al in range(height):
+                # print(sec,al)
+                if inpu[al,sec] >= 300:
+                    
+                    particler = np.random.normal(50e-9, 10e-9, 1) * inpu[al,sec]
+                    x = 2*np.pi*particler/lambd
+                    Qext, qsca, Qback, g = miepython.mie(m,x)
+                # print(sec,al)
+                # V[al] = (np.pi/3)*((((al+1)*binsize)**3)* np.tan(angle) - (((al)*binsize)**3)* np.tan(angle))
+                    back[al,sec] = (inpu[al,sec]/K)*np.pi*(particler**2)*Qback
+                else: 
+                    particler = 1e-9
+                    
+                    x = 2*np.pi*particler/lambd
+                    Qext, qsca, Qback, g = miepython.mie(m,x)
+                # print(sec,al)
+                # V[al] = (np.pi/3)*((((al+1)*binsize)**3)* np.tan(angle) - (((al)*binsize)**3)* np.tan(angle))
+                    back[al,sec] = (inpu[al,sec]/K)*np.pi*(particler**2)*Qback
             
             
     return back
-def RadBackscatter(time,height, inpu, r, n, wave, binsize, angle):
+def RadBackscatter(time,height, inpu, n, wave, binsize, angle):
     back = np.zeros((height, time))
     # V = np.zeros(height)
     # x = 2*np.pi*particler/lambd
     K = 1.38e-23
+    bigboy = np.abs(((n**2 + 2)/(n**2 - 1)))**2
     # Qext, qsca, Qback, g = miepython.mie(n,x)
     for sec in range(time):
         for al in range(height):
-            # print(sec,al)
-            # V[al] = (np.pi/3)*((((al+1)*binsize)**3)* np.tan(angle) - (((al)*binsize)**3)* np.tan(angle))
-            back[al,sec] = (inpu[al,sec]/K) *(16*(np.pi**4))*(((n**2 + 2)/(n**2 - 1))**2)* r**6 * wave**(-4)
+            if inpu[al,sec] >= 300:
+                r = np.random.normal(50e-8, 10e-8, 1) * inpu[al,sec]
+                    # print(sec,al)
+                    # V[al] = (np.pi/3)*((((al+1)*binsize)**3)* np.tan(angle) - (((al)*binsize)**3)* np.tan(angle))
+                back[al,sec] = (inpu[al,sec]/K) *bigboy* r**6 * wave**(-4)
+            else: 
+                r = 10e-11 * inpu[al,sec]
+                back[al,sec] = (inpu[al,sec]/K) *bigboy* r**6 * wave**(-4)
             
             
     return back
@@ -132,16 +160,20 @@ def Radar(Power, binlength, Gain, theta, phi, K, loss, Beta,\
     Z_e = Beta * (m**2-1)/(m**2+2) * 4 * wavelength**4 / np.pi**4
     P = np.pi**3 * Power * Gain**2 * theta*phi * binlength * K**2 * loss * Z_e
     return P
-df = RandomBackscatter(10000,2000) 
+df = RandomBackscatter(10000, 2000, 4e5, 50)
+df2 = RandomBackscatter(10000, 2000, 4e4, 5)
 
-# molback = VEGABetaMol(float(5.32*10**(-7)), 0.00005, 2000, 5, 10, 1.0003, 1e-9)
+# molback = VEGABetaMolM(float(5.32*10**(-7)), 0.00005, 2000, 5, 10, 1.0003, 1e-9)
 
-# molbackrad = VEGABetaMol(0.0086, 0.002617, 2000, 5, 10, 1.0003, 1e-9)
+# molbackrad = VEGABetaMolM(0.0086, 0.002617, 2000, 5, 10, 1.0003, 1e-9)
 
-partbackcloudLi = MieBackscatter(1440,2000, df, 10e-6, waterDroprefrac(5.32*10**(-7)), 5.32*10**(-7), 5, 0.00005)
+partbackcloudLi = MieBackscatter(1440,2000, df, 10e-6, 1.33, 5.32*10**(-7), 5, 0.00005, 'cloud')
 
-partbackcloudra = MieBackscatter(1440,2000, df, 10e-6, waterDroprefrac(0.0086), 0.0086, 5, 0.00005)
+partbackcloudUGHHH = MieBackscatter(1440,2000, df, 10e-6, 5 + 2.5j,0.0086, 5, 0.00005, 'cloud')
 
+partbackcloudra = RadBackscatter(1440,2000, df,5 + 2.5j, 0.0086, 5, 1)
+
+# plt.plot
 
 # for i in range(len(partbackcloudLi[0])):
 #     partbackcloudLi[:,0] = partbackcloudLi[:,i] + molback
@@ -156,7 +188,27 @@ partbackcloudra = MieBackscatter(1440,2000, df, 10e-6, waterDroprefrac(0.0086), 
 # plt.figure()
 # plt.plot(BetaMolVEGACOESA, heights)
 fig = plt.figure(figsize=(17.12, 9.6))
-g = sns.heatmap(df, cmap='jet')
+plt.title("Lidar")
+g = sns.heatmap(partbackcloudLi, cmap='jet', vmin = 1e14, vmax = 1e19, norm = LogNorm())
+plt.gca().invert_yaxis()
+g.set_xticks(np.linspace(0,1440,25))
+g.set_xticklabels(['0:00','','','','','','6:00','','','','','','12:00','','','','','','18:00','','','','','','24:00'])
+g.set_yticks([0, 500, 1000, 1500, 2000])
+g.set_yticklabels([0, 2500, 5000, 7500, 10000])
+
+fig2 = plt.figure(figsize=(17.12, 9.6))
+plt.title("Radar Mie")
+g = sns.heatmap(partbackcloudUGHHH, cmap='jet', vmin = 1e7, vmax = 1e14, norm = LogNorm())
+plt.gca().invert_yaxis()
+g.set_xticks(np.linspace(0,1440,25))
+g.set_xticklabels(['0:00','','','','','','6:00','','','','','','12:00','','','','','','18:00','','','','','','24:00'])
+g.set_yticks([0, 500, 1000, 1500, 2000])
+g.set_yticklabels([0, 2500, 5000, 7500, 10000])
+        
+
+fig3 = plt.figure(figsize=(17.12, 9.6))
+plt.title("Radar")
+g = sns.heatmap(partbackcloudra, cmap='jet', vmin = 1e10, vmax = 1e14, norm = LogNorm())
 plt.gca().invert_yaxis()
 g.set_xticks(np.linspace(0,1440,25))
 g.set_xticklabels(['0:00','','','','','','6:00','','','','','','12:00','','','','','','18:00','','','','','','24:00'])
@@ -164,10 +216,12 @@ g.set_yticks([0, 500, 1000, 1500, 2000])
 g.set_yticklabels([0, 2500, 5000, 7500, 10000])
 
 
-
-
-
-
-
-
-
+fig4 = plt.figure(figsize=(17.12, 9.6))
+print(partbackcloudLi/partbackcloudra)
+plt.title("Colour Ratio")
+g = sns.heatmap(partbackcloudUGHHH/partbackcloudLi, cmap='jet', vmin = 1e-13, vmax = 1e-2, norm = LogNorm())
+plt.gca().invert_yaxis()
+g.set_xticks(np.linspace(0,1440,25))
+g.set_xticklabels(['0:00','','','','','','6:00','','','','','','12:00','','','','','','18:00','','','','','','24:00'])
+g.set_yticks([0, 500, 1000, 1500, 2000])
+g.set_yticklabels([0, 2500, 5000, 7500, 10000])
