@@ -11,17 +11,17 @@ Created on Thu Nov 18 00:48:39 2021
 '''Imports '''
 from matplotlib import pyplot as plt # import libraries
 import pandas as pd # import libraries
-import netCDF4 as nc # import libraries
+# import netCDF4 as nc # import libraries
 import numpy as np
-import sklearn
+# import sklearn
 import scipy
-import glob
-import math 
-import statsmodels
-from scipy.integrate import quad
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
-from scipy.signal import savgol_filter
+# import glob
+# import math 
+# import statsmodels
+# from scipy.integrate import quad
+# from sklearn.linear_model import LinearRegression
+# from sklearn.metrics import mean_squared_error, r2_score
+# from scipy.signal import savgol_filter
 from ambiance import Atmosphere
 from pyatmos import coesa76
 import miepython
@@ -102,6 +102,14 @@ def MieBackscatter(time,height, inpu, particler, m, lambd, binsize, angle, typ):
                 # print(sec,al)
                 # V[al] = (np.pi/3)*((((al+1)*binsize)**3)* np.tan(angle) - (((al)*binsize)**3)* np.tan(angle))
                     back[al,sec] = (inpu[al,sec]/K)*np.pi*(particler**2)*Qback
+                elif 299 > inpu[al,sec] >= 200: 
+                    particler = np.random.normal(50e-10, 25e-10, 1) * inpu[al,sec]
+                    
+                    x = 2*np.pi*particler/lambd
+                    Qext, qsca, Qback, g = miepython.mie(m,x)
+                # print(sec,al)
+                # V[al] = (np.pi/3)*((((al+1)*binsize)**3)* np.tan(angle) - (((al)*binsize)**3)* np.tan(angle))
+                    back[al,sec] = (inpu[al,sec]/K)*np.pi*(particler**2)*Qback
                 else: 
                     particler = 1e-10 * inpu[al,sec]
                     
@@ -163,9 +171,9 @@ def Radar(Power, binlength, Gain, theta, phi, K, loss, Beta,\
 df = RandomBackscatter(10000, 2000, 4e5, 50)
 df2 = RandomBackscatter(10000, 2000, 4e4, 5)
 
-# molback = VEGABetaMolM(float(5.32*10**(-7)), 0.00005, 2000, 5, 10, 1.0003, 1e-9)
+molback = VEGABetaMolM(float(5.32*10**(-7)), 0.00005, 2000, 5, 10, 1.0003, 1e-9)
 
-# molbackrad = VEGABetaMolM(0.0086, 0.002617, 2000, 5, 10, 1.0003, 1e-9)
+molbackrad = VEGABetaMolM(0.0086, 0.002617, 2000, 5, 10, 1.0003, 1e-9)
 
 partbackcloudLi = MieBackscatter(1440,2000, df, 10e-6, 1.33, 5.32*10**(-7), 5, 0.00005, 'cloud')
 
@@ -231,6 +239,37 @@ fig5 = plt.figure(figsize=(17.12, 9.6))
 print(partbackcloudLi/partbackcloudra)
 plt.title("Colour Ratio")
 g = sns.heatmap(partbackcloudra/partbackcloudLi, cmap='jet', vmin = 1e-13, vmax = 1e-2, norm = LogNorm())
+plt.gca().invert_yaxis()
+g.set_xticks(np.linspace(0,1440,25))
+g.set_xticklabels(['0:00','','','','','','6:00','','','','','','12:00','','','','','','18:00','','','','','','24:00'])
+g.set_yticks([0, 500, 1000, 1500, 2000])
+g.set_yticklabels([0, 2500, 5000, 7500, 10000])
+
+
+Backish = RandomBackscatter(10000, 2000, 1e10, 1e20)
+radar = RandomBackscatter(10000,2000, 1e8, 1e14)
+
+fig = plt.figure(figsize=(17.12, 9.6))
+plt.title("Lidar- random")
+g = sns.heatmap(Backish, cmap='jet',  norm = LogNorm())
+plt.gca().invert_yaxis()
+g.set_xticks(np.linspace(0,1440,25))
+g.set_xticklabels(['0:00','','','','','','6:00','','','','','','12:00','','','','','','18:00','','','','','','24:00'])
+g.set_yticks([0, 500, 1000, 1500, 2000])
+g.set_yticklabels([0, 2500, 5000, 7500, 10000])
+
+fig = plt.figure(figsize=(17.12, 9.6))
+plt.title("radar- random")
+g = sns.heatmap(radar, cmap='jet',  norm = LogNorm())
+plt.gca().invert_yaxis()
+g.set_xticks(np.linspace(0,1440,25))
+g.set_xticklabels(['0:00','','','','','','6:00','','','','','','12:00','','','','','','18:00','','','','','','24:00'])
+g.set_yticks([0, 500, 1000, 1500, 2000])
+g.set_yticklabels([0, 2500, 5000, 7500, 10000])
+
+fig = plt.figure(figsize=(17.12, 9.6))
+plt.title("colourratio- random")
+g = sns.heatmap(radar/Backish, cmap='jet',  norm = LogNorm())
 plt.gca().invert_yaxis()
 g.set_xticks(np.linspace(0,1440,25))
 g.set_xticklabels(['0:00','','','','','','6:00','','','','','','12:00','','','','','','18:00','','','','','','24:00'])
