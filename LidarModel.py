@@ -103,7 +103,7 @@ def MieBackscatter(time,height, inpu, particler, m, lambd, binsize, angle, typ):
                 # V[al] = (np.pi/3)*((((al+1)*binsize)**3)* np.tan(angle) - (((al)*binsize)**3)* np.tan(angle))
                     back[al,sec] = (inpu[al,sec]/K)*np.pi*(particler**2)*Qback
                 else: 
-                    particler = 1e-9
+                    particler = 1e-10 * inpu[al,sec]
                     
                     x = 2*np.pi*particler/lambd
                     Qext, qsca, Qback, g = miepython.mie(m,x)
@@ -220,6 +220,17 @@ fig4 = plt.figure(figsize=(17.12, 9.6))
 print(partbackcloudLi/partbackcloudra)
 plt.title("Colour Ratio")
 g = sns.heatmap(partbackcloudUGHHH/partbackcloudLi, cmap='jet', vmin = 1e-13, vmax = 1e-2, norm = LogNorm())
+plt.gca().invert_yaxis()
+g.set_xticks(np.linspace(0,1440,25))
+g.set_xticklabels(['0:00','','','','','','6:00','','','','','','12:00','','','','','','18:00','','','','','','24:00'])
+g.set_yticks([0, 500, 1000, 1500, 2000])
+g.set_yticklabels([0, 2500, 5000, 7500, 10000])
+
+
+fig5 = plt.figure(figsize=(17.12, 9.6))
+print(partbackcloudLi/partbackcloudra)
+plt.title("Colour Ratio")
+g = sns.heatmap(partbackcloudra/partbackcloudLi, cmap='jet', vmin = 1e-13, vmax = 1e-2, norm = LogNorm())
 plt.gca().invert_yaxis()
 g.set_xticks(np.linspace(0,1440,25))
 g.set_xticklabels(['0:00','','','','','','6:00','','','','','','12:00','','','','','','18:00','','','','','','24:00'])
