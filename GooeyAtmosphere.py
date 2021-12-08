@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.colors import LogNorm
 import seaborn as sns
 
-from testAtmosphere import RandomBackscatter
+from generateAtmosphere import RandomBackscatter
 from LidarModel import *
 
 ######################################################################################################################################################################################################
