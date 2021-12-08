@@ -60,5 +60,6 @@ The bottom parameter given in the Atmosphere Properties tab is the "Create New A
 `generateAtmosphere.py` primarily written by Callum with help from Victoria.  
 `LidarModel.py` primarily written by Victoria with help from Callum.  
 `GooeyAtmosphere.py` primarily written by Callum.  
-LidarRadar\_Presentation.pptx slides 1 through 9 were made by Victoria, slides 10 through 14 were made by Callum.  
+LidarRadar\_Presentation.pptx slides 1 through 9 were made by Victoria, slides 10 through 14 were made by Callum. 
+The Sources listed in References.pdf were gathered by Victoria. 
 The README sections were written by the person who did the majority of the work for the respective section.
