@@ -37,7 +37,7 @@ Cloud: n<sub>lidar</sub> = 1.33, n<sub>radar</sub> = 5 + 2.5j. Wavelength varies
 `RadBackscatter` works in the same way as `MieBackscatter` except it utilizes Rayleigh scattering as discussed in the power point for all variation in P/T. The refractive index utilizes the same variation as `MieBackscatter`. 
 
 `ReflectivitytoBackscatter` and `BackscattertoReflectivity` convert the backscatter to the Reflectivity and back. The reflectivity is traditionally used for Radar studies and is in the units of dBz.
-`VEGABetaMol(time bins, height bins, random atmosphere, wavelength)`
+`
 
 
 
