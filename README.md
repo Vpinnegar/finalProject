@@ -10,7 +10,7 @@ This repository makes use of Python3. Modules Required include:
 - matplotlib
 - seaborn
 
-The tkinter package is a standard Python interface and should be included in your python installation. All other modules can be easily installed using pip or conda, for example by entering `pip intall numpy` or `conda intall numpy` into the console/kernel (where numpy is replaced with any of the above models). We recommend installing Anaconda and using the Spyder environment to run the Python code.
+The tkinter package is a standard Python interface and should be included in your python installation. All other modules can be easily installed using pip or conda, for example by entering `pip install numpy` or `conda install numpy` into the console/kernel (where numpy is replaced with any of the above models). We recommend installing Anaconda and using the Spyder environment to run the Python code.
 
 ## Files
 ### `generateAtmosphere.py`
