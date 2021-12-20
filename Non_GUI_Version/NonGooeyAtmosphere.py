@@ -19,13 +19,13 @@ sns.set_context({'font.size': '16'})
 
 ## OPTIONS TO BE CHANGED BY USER
 
-atmos_type = 'aerosol'		 	# 'cloud' or 'aerosol'
+atmos_type = 'cloud'		 	# 'cloud' or 'aerosol'
 
 atmos_maxheight = 10000 		# max height in metres, default is 10000
 atmos_peakheight = 2000 		# cloud peak height in metres, default is 2000
-atmos_initstd = 200				# initial cloud standard deviation in metres, default is 200
-atmos_varymean = 100		 	# standard deviation of the cloud mean height variation over time, default is 200
-atmos_varystd = 80				# standard deviation of the standard deviation variation over time, default is 50
+atmos_initstd = 200			# initial cloud standard deviation in metres, default is 200
+atmos_varymean = 200		 	# standard deviation of the cloud mean height variation over time, default is 200
+atmos_varystd = 50			# standard deviation of the standard deviation variation over time, default is 50
 
 # CHANGING THE BINS/BINSIZES MAKES THE ATMOSPHERE GENERATION NOT WORK AS WELL, BUT THE CODE IS MUCH FASTER
 # IT'S GOOD FOR TESTING BUT ISN'T NECESSARILY SIMILAR TO WHAT YOU'D SEE WITH THE DEFAULT VALUES
